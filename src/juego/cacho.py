@@ -16,3 +16,8 @@ class Cacho:
     
     def numero_dados(self):
         return len(self.dados)
+    
+    def quitar_dado(self):
+        if self.numero_dados() > 0:
+            self.dados.pop()
+            
