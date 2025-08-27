@@ -8,6 +8,7 @@ class Cacho:
         self.dado4 = Dado()
         self.dado5 = Dado()
         self.dados = [self.dado1, self.dado2, self.dado3, self.dado4, self.dado5]
+        self.num_dados = 5
 
     def agitar(self):
         for i in range(len(self.dados)):
@@ -22,5 +23,6 @@ class Cacho:
             self.dados.pop()
             
     def sumar_dado(self):
-        nuevo_dado = Dado()
-        self.dados.append(nuevo_dado)
+        if self.numero_dados() < 5:
+            nuevo_dado = Dado()
+            self.dados.append(nuevo_dado)
