@@ -19,3 +19,8 @@ def test_sumar_dado_cacho():
     cacho.quitar_dado()
     cacho.sumar_dado()
     assert cacho.numero_dados() == 5
+
+def test_sumar_sexto_dado_cacho():
+    cacho = Cacho()
+    cacho.sumar_dado()
+    assert cacho.numero_dados() == 5
