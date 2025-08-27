@@ -21,3 +21,6 @@ class Cacho:
         if self.numero_dados() > 0:
             self.dados.pop()
             
+    def sumar_dado(self):
+        nuevo_dado = Dado()
+        self.dados.append(nuevo_dado)
