@@ -10,9 +10,9 @@ class Cacho:
         self.dados = [self.dado1, self.dado2, self.dado3, self.dado4, self.dado5]
 
     def agitar(self):
-        self.dados[0] = self.dado1.lanzar()
-        self.dados[1] = self.dado2.lanzar()
-        self.dados[2] = self.dado3.lanzar()
-        self.dados[3] = self.dado4.lanzar()
-        self.dados[4] = self.dado5.lanzar()
+        for i in range(len(self.dados)):
+            self.dados[i] = self.dados[i].lanzar()
         return self.dados
+    
+    def numero_dados(self):
+        return len(self.dados)
