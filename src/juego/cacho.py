@@ -11,18 +11,25 @@ class Cacho:
         self.num_dados = 5
 
     def agitar(self):
+        if self.num_dados == 0:
+            return None
         for i in range(len(self.dados)):
             self.dados[i] = self.dados[i].lanzar()
         return self.dados
     
     def numero_dados(self):
-        return len(self.dados)
+        return self.num_dados
     
     def quitar_dado(self):
-        if self.numero_dados() > 0:
+        if self.num_dados > 5:
+            self.num_dados -= 1
+        elif self.num_dados > 0:
             self.dados.pop()
+            self.num_dados -= 1
             
     def sumar_dado(self):
-        if self.numero_dados() < 5:
+        if self.num_dados < 5:
             nuevo_dado = Dado()
             self.dados.append(nuevo_dado)
+        
+        self.num_dados += 1
