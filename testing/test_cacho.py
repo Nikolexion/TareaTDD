@@ -13,3 +13,9 @@ def test_quitar_dado_cacho():
     cacho = Cacho()
     cacho.quitar_dado()
     assert cacho.numero_dados() == 4
+
+def test_sumar_dado_cacho():
+    cacho = Cacho()
+    cacho.quitar_dado()
+    cacho.sumar_dado()
+    assert cacho.numero_dados() == 5
