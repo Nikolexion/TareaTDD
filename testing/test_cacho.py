@@ -23,4 +23,4 @@ def test_sumar_dado_cacho():
 def test_sumar_sexto_dado_cacho():
     cacho = Cacho()
     cacho.sumar_dado()
-    assert cacho.numero_dados() == 5
+    assert cacho.numero_dados_en_juego() == 5
