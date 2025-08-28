@@ -35,5 +35,5 @@ jobs:
 
       - name: Run tests
         env:
-          PYTHONPATH: ${{ github.workspace }}/src   # asegura que src/juego se encuentre
-        run: pytest src/testing -v
+          PYTHONPATH: ${{ github.workspace }}/src  
+        run: pytest testing -v
