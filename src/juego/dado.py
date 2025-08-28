@@ -1,6 +1,14 @@
 import random
 
 class Dado:
+    PINTA = {
+    1: "As",
+    2: "Tonto",
+    3: "Tren",
+    4: "Cuadra",
+    5: "Quina",
+    6: "Sexto"
+}
     def __init__(self):
         self.valor = None
     
@@ -9,6 +17,5 @@ class Dado:
         return self.valor
     
     def pinta(self):
-        if self.valor == 3:
-            return "Tren"
+        return self.PINTA[self.valor]
         
