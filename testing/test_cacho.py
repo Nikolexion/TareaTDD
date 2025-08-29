@@ -1,4 +1,4 @@
-from juego.cacho import Cacho
+from src.juego.cacho import Cacho
 
 def test_agitar_cacho():
     cacho = Cacho()

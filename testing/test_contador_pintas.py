@@ -1,5 +1,5 @@
-from juego.contador_pintas import Contador_pintas
-from juego.cacho import Cacho
+from src.juego.contador_pintas import Contador_pintas
+from src.juego.cacho import Cacho
 
 def test_contador_pintas():
     cacho = Cacho()

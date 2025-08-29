@@ -1,4 +1,4 @@
-from juego.dado import Dado
+from src.juego.dado import Dado
 
 def test_lanzar_dado():
     dado = Dado()
