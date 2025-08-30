@@ -9,7 +9,7 @@ def test_resultado_duda_si_supera_apuesta(mocker):
     cacho = Cacho()
     apuesta = Apuesta(cantidad=3, pinta=3)
     arbitro = ArbitroRonda(0, [object(), object()])
-    resultado = arbitro.resolver_duda(apuesta, cacho, player_duda="2", player_apuesta="1")
+    resultado = arbitro.resolver_duda(apuesta, cacho, jugador_duda="2", jugador_apuesta="1")
     assert resultado.pierde_dado == "2"
 
 def test_resultado_duda_no_cumple_apuesta(mocker):
@@ -20,7 +20,7 @@ def test_resultado_duda_no_cumple_apuesta(mocker):
     cacho = Cacho()
     apuesta = Apuesta(cantidad=3, pinta=3)
     arbitro = ArbitroRonda(0, [object(), object()])
-    resultado = arbitro.resolver_duda(apuesta, cacho, player_duda="2", player_apuesta="1")
+    resultado = arbitro.resolver_duda(apuesta, cacho, jugador_duda="2", jugador_apuesta="1")
     assert resultado.pierde_dado == "1"
 
 def test_resolver_calzar_bueno(mocker):
