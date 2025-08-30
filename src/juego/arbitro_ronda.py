@@ -2,9 +2,10 @@ from .contador_pintas import Contador_pintas
 from .dado import Dado
 
 class Apuesta:
-    def __init__(self, cantidad, pinta):
+    def __init__(self, cantidad, pinta, jugador_que_aposto):
         self.cantidad = cantidad
         self.pinta = pinta
+        self.jugador_que_aposto = jugador_que_aposto
 
 class ResultadoDuda:
     def __init__(self, pierde_dado):
@@ -19,31 +20,30 @@ class ArbitroRonda:
         self.jugador_inicial = jugador_inicial
         self.jugadores = jugadores
 
-    def resolver_duda(self, apuesta, cacho, jugador_duda, jugador_apuesta, obligar = False):
-        #Para usar contador pintas
+    def pinta_en_string(self, apuesta):
         if isinstance(apuesta.pinta, int):
-            pinta_en_string = Dado.PINTA[apuesta.pinta]
+             pinta_en_string = Dado.PINTA[apuesta.pinta]
         else:
-            pinta_en_string = apuesta.pinta
+             pinta_en_string = apuesta.pinta
+        return pinta_en_string
 
+    def resolver_duda(self, apuesta, cacho, jugador_duda, obligar = False):
+        pinta_en_string = self.pinta_en_string(apuesta)
         total = Contador_pintas(cacho).contar_pintas(pinta_en_string, obligar=obligar)
 
         if total >= apuesta.cantidad:
             pierde = jugador_duda
         else:
-            pierde = jugador_apuesta
+            pierde = apuesta.jugador_que_aposto
+
 
         return ResultadoDuda(pierde)
 
-    def resolver_calzar(self, apuesta, cacho, jugador_calza, jugador_apuesta, obligar = False):
-        if isinstance(apuesta.pinta, int):
-            pinta_en_string = Dado.PINTA[apuesta.pinta]
-        else:
-            pinta_en_string = apuesta.pinta
-
+    def resolver_calzar(self, apuesta, cacho, jugador_calza, obligar = False):
+        pinta_en_string = self.pinta_en_string(apuesta)
         total = Contador_pintas(cacho).contar_pintas(pinta_en_string, obligar=obligar)
 
         if total == apuesta.cantidad:
             return ResultadoCalzar(acierta =True)
         else:
-            ResultadoCalzar(acierta = False)
+            return ResultadoCalzar(acierta = False)
