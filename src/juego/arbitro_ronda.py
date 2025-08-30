@@ -2,7 +2,7 @@ from .contador_pintas import Contador_pintas
 from .dado import Dado
 
 class Apuesta:
-    def __init__(self, cantidad, pinta, jugador_que_aposto):
+    def __init__(self, cantidad, pinta, jugador_que_aposto = None):
         self.cantidad = cantidad
         self.pinta = pinta
         self.jugador_que_aposto = jugador_que_aposto
