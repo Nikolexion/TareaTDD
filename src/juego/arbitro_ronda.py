@@ -17,22 +17,14 @@ class ArbitroRonda:
         self.jugador_inicial = jugador_inicial
         self.jugadores = jugadores
 
-    def resolver_duda(self, apuesta, caras_mesa, player_duda, player_apuesta):
+    def resolver_duda(self, apuesta, cacho, player_duda, player_apuesta, obligar = False):
         #Para usar contador pintas
         if isinstance(apuesta.pinta, int):
             pinta_en_string = Dado.PINTA[apuesta.pinta]
         else:
             pinta_en_string = apuesta.pinta
 
-        c = Cacho()
-        c.dados = []
-        for cara in caras_mesa:
-            d = Dado()
-            d.valor = cara
-            c.dados.append(d)
-        c.num_dados = len(c.dados)
-        #falso por mientras
-        total = Contador_pintas(c).contar_pintas(pinta_en_string, obligar=False)
+        total = Contador_pintas(cacho).contar_pintas(pinta_en_string, obligar=obligar)
 
         if total >= apuesta.cantidad:
             pierde = player_duda

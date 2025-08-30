@@ -1,6 +1,13 @@
 import random
 
-class GeneradorAleatorio:
+import random
 
-    def __init__(self, generador_aleatorio =None):
-        self.generador_aleatorio = generador_aleatorio or (lambda: random.randint(1,6))
+class GeneradorAleatorio:
+    def __init__(self, generador_aleatorio=None):
+        if generador_aleatorio is None:
+            self.generador_aleatorio = lambda: random.randint(1, 6)
+        else:
+            self.generador_aleatorio = generador_aleatorio
+
+    def generar(self):
+        return self.generador_aleatorio()
