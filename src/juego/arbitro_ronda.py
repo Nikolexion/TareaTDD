@@ -1,6 +1,5 @@
 from .contador_pintas import Contador_pintas
 from .dado import Dado
-from .cacho import Cacho
 
 class Apuesta:
     def __init__(self, cantidad, pinta):
