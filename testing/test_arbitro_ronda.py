@@ -40,21 +40,23 @@ def test_resolver_calzar_bueno(mocker):
     mocker.patch("src.juego.dado.GeneradorAleatorio", return_value=mock_generador)
 
     jugador1 = mocker.Mock()
-    jugador2 = mocker.Mock()
+    jugador_calza = mocker.Mock()
     jugador1.num_dados = 2
-    jugador2.num_dados = 2
+    jugador_calza.num_dados = 2
 
-    arbitro = ArbitroRonda(0, [jugador1, jugador2])
+    arbitro = ArbitroRonda(0, [jugador1, jugador_calza])
     apuesta = Apuesta(cantidad=3, pinta=3, jugador_que_aposto=jugador1)
     cacho = Cacho()
 
-    resultado = arbitro.resolver_calzar(apuesta, cacho, jugador_calza=jugador2)
+    resultado = arbitro.resolver_calzar(apuesta, cacho, jugador_calza=jugador_calza)
     assert resultado.acierta is True
-    assert resultado.pierden_dado == [jugador1]
+    assert resultado.recupera_jugador == jugador_calza
+    assert resultado.pierden_dado == []
+
 
 def test_calzar_incorrecto_pierde_quien_calza(mocker):
     mock_generador = mocker.Mock()
-    mock_generador.generar.side_effect = [3, 2 , 1, 2, 2]
+    mock_generador.generar.side_effect = [3, 2, 1, 2, 2]
     mocker.patch("src.juego.dado.GeneradorAleatorio", return_value=mock_generador)
 
     jugador_apuesta = mocker.Mock()
@@ -65,6 +67,5 @@ def test_calzar_incorrecto_pierde_quien_calza(mocker):
     cacho = Cacho()
 
     resultado = arbitro.resolver_calzar(apuesta, cacho, jugador_calza=jugador_calza)
-
     assert resultado.acierta is False
     assert resultado.pierden_dado == [jugador_calza]

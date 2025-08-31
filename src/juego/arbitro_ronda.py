@@ -12,8 +12,12 @@ class ResultadoDuda:
         self.pierde_dado = pierde_dado
 
 class ResultadoCalzar:
-    def __init__(self, acierta):
+    def __init__(self, acierta, pierden_dado=None, recupera_jugador=None):
+        if pierden_dado is None:
+            pierden_dado = []
         self.acierta = acierta
+        self.pierden_dado = pierden_dado
+        self.recupera_jugador = recupera_jugador
 
 class ArbitroRonda:
     def __init__(self, jugador_inicial, jugadores):
@@ -36,14 +40,14 @@ class ArbitroRonda:
         else:
             pierde = apuesta.jugador_que_aposto
 
-
         return ResultadoDuda(pierde)
 
-    def resolver_calzar(self, apuesta, cacho, jugador_calza, obligar = False):
+    def resolver_calzar(self, apuesta, cacho, jugador_calza, obligar=False):
         pinta_en_string = self.pinta_en_string(apuesta)
         total = Contador_pintas(cacho).contar_pintas(pinta_en_string, obligar=obligar)
 
         if total == apuesta.cantidad:
-            return ResultadoCalzar(acierta =True)
+            return ResultadoCalzar(acierta=True, pierden_dado=[], recupera_jugador=jugador_calza)
         else:
-            return ResultadoCalzar(acierta = False)
+            return ResultadoCalzar(acierta=False, pierden_dado=[jugador_calza])
+
