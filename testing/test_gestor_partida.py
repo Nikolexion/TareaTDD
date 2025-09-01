@@ -19,7 +19,7 @@ def test_determinar_jugador_inicial_de_juego(mocker):
     mock_generador.generar.side_effect = [4, 6, 2]
     mocker.patch("src.juego.dado.GeneradorAleatorio", return_value=mock_generador)
 
-    jugadores = [Jugador("hugo"), Jugador("julio"), Jugador("geoffrey")]
+    jugadores = [mocker.Mock(nombre="hugo"), mocker.Mock(nombre="julio"), mocker.Mock(nombre="geoffrey")]
     gestor = GestorPartida(jugadores)
 
     gestor.determinar_jugador_inicial()
@@ -68,17 +68,6 @@ def test_detectar_jugador_con_un_dado_invalido():
 
     assert not getattr(jugador, "reglas_especiales", False)
 
-def test_repite_tirada_si_hay_empate(mocker):
-    mock_generador = mocker.Mock()
-    mock_generador.generar.side_effect = [6, 6, 3, 5]
-    mocker.patch("src.juego.dado.GeneradorAleatorio", return_value=mock_generador)
-
-    jugadores = [Jugador("hugo"), Jugador("julio")]
-    gestor = GestorPartida(jugadores)
-
-    gestor.determinar_jugador_inicial()
-    assert gestor.jugador_inicial == jugadores[1]
-
 
 #caso en que hay empate en el lanzamiento al empezar la partida de juego
 def test_repetir_lanzamiento_si_empate(mocker):
@@ -86,11 +75,11 @@ def test_repetir_lanzamiento_si_empate(mocker):
     mock_generador.generar.side_effect = [6, 6, 3, 4, 5]
     mocker.patch("src.juego.dado.GeneradorAleatorio", return_value=mock_generador)
 
-    jugadores = [Jugador("hugo"), Jugador("julio"), Jugador("geoffrey")]
+    jugadores = [mocker.Mock(nombre="hugo"), mocker.Mock(nombre="julio"), mocker.Mock(nombre="geoffrey")]
     gestor = GestorPartida(jugadores)
 
-    gestor.determinar_jugador_inicial_por_tirada()
-    assert gestor.jugador_inicial == jugadores[1]  # julio gana el desempate (valor 5)
+    gestor.determinar_jugador_inicial()
+    assert gestor.jugador_inicial == jugadores[1]  #julio gana el desempate (valor 5)
 
 
 def test_flujo_turnos_sentido_horario():
