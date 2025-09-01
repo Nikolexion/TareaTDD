@@ -107,8 +107,10 @@ def test_partida_terminada():
     jugador2 = Jugador("julio")
     jugador3 = Jugador("hugo")
 
-    jugador2.cacho.dados = []
-    jugador3.cacho.dados = []
+    while jugador2.cacho.numero_dados() > 0:
+        jugador2.cacho.quitar_dado()
+    while jugador3.cacho.numero_dados() > 0:
+        jugador3.cacho.quitar_dado()
 
     gestor = GestorPartida([jugador1, jugador2, jugador3])
     assert gestor.partida_terminada() is True

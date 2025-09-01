@@ -65,3 +65,7 @@ class GestorPartida:
                 break
             # en caso de empate, se repite solo entre los empatados
             self.jugadores = tiradas[max_valor]
+
+    def partida_terminada(self):
+        jugadores_activos = [j for j in self.jugadores if j.cacho.numero_dados() > 0]
+        return len(jugadores_activos) == 1
