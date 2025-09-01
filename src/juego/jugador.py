@@ -4,3 +4,4 @@ class Jugador():
     def __init__(self, nombre):
         self.cacho = Cacho()
         self.nombre = nombre
+        self.reglas_especiales = False
