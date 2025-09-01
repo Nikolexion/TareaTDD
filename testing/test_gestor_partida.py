@@ -99,3 +99,21 @@ def test_flujo_turnos_sentido_antihorario():
 
     orden = gestor.obtener_orden_turnos()
     assert orden == [jugadores[2], jugadores[1], jugadores[0], jugadores[3]]
+
+
+#si solo un jugador tiene dados
+def test_partida_terminada():
+    jugador1 = Jugador("geoffrey")
+    jugador2 = Jugador("julio")
+    jugador3 = Jugador("hugo")
+
+    jugador2.cacho.dados = []
+    jugador3.cacho.dados = []
+
+    gestor = GestorPartida([jugador1, jugador2, jugador3])
+    assert gestor.partida_terminada() is True
+    
+    
+#se juega una partida completa y debe quedar un único ganador
+#def test_jugar_partida():
+    
