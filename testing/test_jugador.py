@@ -8,5 +8,12 @@ def test_inicializar_jugador():
     assert isinstance(jugador.cacho, Cacho)
     assert len(jugador.cacho.dados) == 5
     assert jugador.nombre == "geoffrey"
+    
+    
+def test_elegir_sentido_juego_horario():
+    jugador = Jugador("geoffrey")
+    sentido = jugador.elegir_sentido()
+    assert sentido in ["horario", "antihorario"]
+    
 
 
