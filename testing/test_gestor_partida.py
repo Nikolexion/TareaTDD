@@ -183,10 +183,16 @@ def test_jugar_ronda_calzar_valido(monkeypatch):
     gestor = GestorPartida(jugadores)
     gestor.jugador_inicial = jugadores[0]
     gestor.definir_sentido("horario")
+
+    jugadores[1].cacho.dados = [Dado() for _ in range(5)]
+    jugadores[1].cacho.num_dados = 5
+
+    #mockear pinta() para que todos los dados digan "Tren"
+    monkeypatch.setattr(Dado, "pinta", lambda self: "Tren")
+
     gestor.iniciar_ronda()
 
-    pinta = jugadores[1].cacho.dados[0].pinta()
-    apuesta = Apuesta(cantidad=5, pinta=pinta, jugador_que_aposto=jugadores[0])
+    apuesta = Apuesta(cantidad=5, pinta="Tren", jugador_que_aposto=jugadores[0])
     assert ValidadorApuesta.es_valida(apuesta, None, jugadores[1])
 
     gestor.apuesta_actual = apuesta

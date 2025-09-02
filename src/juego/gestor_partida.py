@@ -172,7 +172,7 @@ class GestorPartida:
 
                 #acertó, recupera un dado
                 if resultado.recupera_jugador:
-                    resultado.recupera_jugador.sumar_dado()
+                    resultado.recupera_jugador.cacho.sumar_dado()
 
                 self.establecer_jugador_afectado(jugador)
                 break
