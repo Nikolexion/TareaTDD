@@ -36,9 +36,10 @@ class GestorPartida:
         self.jugador_afectado = None
 
     def iniciar_ronda(self):
-        #agitar dados y verificar reglas especiales
+        print(f"\n--- Iniciando nueva ronda ---")
         for jugador in self.jugadores:
             jugador.cacho.agitar()
+            print(f"{jugador.nombre} tiene {jugador.cacho.numero_dados()} dados: {[d.pinta() for d in jugador.cacho.dados]}")
             self.verificar_reglas_especiales(jugador)
 
         if self.jugador_afectado:
@@ -46,13 +47,15 @@ class GestorPartida:
         elif self.jugador_inicial is None:
             raise ValueError("Debe determinarse el jugador inicial antes de iniciar la partida")
 
-        #regla de obligado si el jugador inicial tiene solo un dado
         self.ronda_obligada = getattr(self.jugador_inicial, "reglas_especiales", False)
+        if self.ronda_obligada:
+            print(f"{self.jugador_inicial.nombre} está obligado. Modo: {self.jugador_inicial.modo_obligado}")
 
         self.orden_turnos = self.obtener_orden_turnos()
         self.turno_index = 0
         self.jugador_afectado = None
         self.apuesta_actual = None
+
 
 
     def obtener_orden_turnos(self):
@@ -126,39 +129,39 @@ class GestorPartida:
         self.apuesta_actual = apuesta_inicial_tests
         self.arbitro = ArbitroRonda(self.jugador_inicial, self.jugadores)
 
+        print(f"\n--- Jugando ronda ---")
         while True:
             jugador = self.obtener_jugador_actual()
+            print(f"\nTurno de {jugador.nombre} ({jugador.cacho.numero_dados()} dados)")
+
             accion = jugador.elegir_accion(self.apuesta_actual)
             tipo = accion.get("tipo")
-                
-            if self.apuesta_actual is None and tipo in ["dudar", "calzar"]:
-                if jugador.cacho.numero_dados() == 1:
-                    raise ValueError(f"{jugador.nombre} está obligado a iniciar con una apuesta")
-                else:
-                    raise ValueError("No se puede dudar ni calzar sin una apuesta previa")
 
-            
             if tipo == "apostar":
                 nueva_apuesta = accion["apuesta"]
+                print(f"{jugador.nombre} apuesta {nueva_apuesta.cantidad} {nueva_apuesta.pinta}")
 
                 if not ValidadorApuesta.es_valida(nueva_apuesta, self.apuesta_actual, nueva_apuesta.jugador_que_aposto):
                     raise ValueError(f"Apuesta inválida: {nueva_apuesta.cantidad} {nueva_apuesta.pinta}")
 
                 self.apuesta_actual = nueva_apuesta
                 self.avanzar_turno()
-                
+
             elif tipo == "dudar":
+                print(f"{jugador.nombre} duda de la apuesta: {self.apuesta_actual.cantidad} {self.apuesta_actual.pinta}")
                 resultado = self.arbitro.resolver_duda(
                     apuesta=self.apuesta_actual,
                     cacho=jugador.cacho,
                     jugador_duda=jugador,
                     obligar=self.ronda_obligada
                 )
+                print(f"{resultado.pierde_dado.nombre} pierde un dado por dudar.")
                 resultado.pierde_dado.cacho.quitar_dado()
                 self.establecer_jugador_afectado(resultado.pierde_dado)
                 break
 
             elif tipo == "calzar":
+                print(f"{jugador.nombre} intenta calzar la apuesta: {self.apuesta_actual.cantidad} {self.apuesta_actual.pinta}")
                 resultado = self.arbitro.resolver_calzar(
                     apuesta=self.apuesta_actual,
                     cacho=jugador.cacho,
@@ -166,13 +169,12 @@ class GestorPartida:
                     obligar=self.ronda_obligada
                 )
 
-                #falló, pierde un dado
-                if resultado.pierden_dado:
-                    resultado.pierden_dado[0].cacho.quitar_dado()
-
-                #acertó, recupera un dado
-                if resultado.recupera_jugador:
+                if resultado.acierta:
+                    print(f"{jugador.nombre} calzó justo. Recupera un dado.")
                     resultado.recupera_jugador.cacho.sumar_dado()
+                else:
+                    print(f"{jugador.nombre} falló al calzar. Pierde un dado.")
+                    resultado.pierden_dado[0].cacho.quitar_dado()
 
                 self.establecer_jugador_afectado(jugador)
                 break
