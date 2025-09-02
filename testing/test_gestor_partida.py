@@ -15,11 +15,13 @@ def test_inicializar_lista_de_jugadores():
     assert gestor.jugadores == jugadores
 
 def test_determinar_jugador_inicial_de_juego(mocker):
-    mock_generador = mocker.Mock() 
-    mock_generador.generar.side_effect = [4, 6, 2] 
-    mocker.patch("src.juego.dado.GeneradorAleatorio", return_value=mock_generador) 
+    mock_generador = mocker.Mock()
+    mock_generador.generar.side_effect = [4, 6, 2]
+    mocker.patch("src.juego.dado.GeneradorAleatorio", return_value=mock_generador)
 
     jugadores = [mocker.Mock(nombre="hugo"), mocker.Mock(nombre="julio"), mocker.Mock(nombre="geoffrey")]
+    jugadores[1].elegir_sentido.return_value = "antihorario"
+    
     gestor = GestorPartida(jugadores)
 
     gestor.determinar_jugador_inicial()
@@ -68,8 +70,9 @@ def test_repetir_lanzamiento_si_empate(mocker):
     mocker.patch("src.juego.dado.GeneradorAleatorio", return_value=mock_generador)
 
     jugadores = [mocker.Mock(nombre="hugo"), mocker.Mock(nombre="julio"), mocker.Mock(nombre="geoffrey")]
+    jugadores[1].elegir_sentido.return_value = "horario"
+    
     gestor = GestorPartida(jugadores)
-
     gestor.determinar_jugador_inicial()
     assert gestor.jugador_inicial == jugadores[1]
 

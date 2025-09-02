@@ -49,7 +49,7 @@ class GestorPartida:
         if num_dados == 1:
             jugador.reglas_especiales = True
 
-    #para determinar el jugador que empieza la partida
+    #para determinar el jugador que empieza la partida y el sentido de juego
     def determinar_jugador_inicial(self):
         tiradas = {}
         while True:
@@ -62,6 +62,7 @@ class GestorPartida:
 
             if len(tiradas[max_valor]) == 1:
                 self.jugador_inicial = tiradas[max_valor][0]
+                self.definir_sentido(self.jugador_inicial.elegir_sentido()) #se elije el sentido
                 break
             # en caso de empate, se repite solo entre los empatados
             self.jugadores = tiradas[max_valor]
