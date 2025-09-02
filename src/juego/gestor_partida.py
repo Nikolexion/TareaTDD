@@ -85,34 +85,48 @@ class GestorPartida:
     #para determinar el jugador que empieza la partida y el sentido de juego
     def determinar_jugador_inicial(self):
         tiradas = {}
+        ronda = 1
         while True:
+            print(f"\n--- Determinando jugador inicial (ronda {ronda}) ---")
             tiradas.clear()
             max_valor = -1
             for jugador in self.jugadores:
                 valor = Dado().lanzar()
+                print(f"{jugador.nombre} lanza y obtiene: {valor}")
                 tiradas.setdefault(valor, []).append(jugador)
                 max_valor = max(max_valor, valor)
 
             if len(tiradas[max_valor]) == 1:
                 self.jugador_inicial = tiradas[max_valor][0]
-                self.definir_sentido(self.jugador_inicial.elegir_sentido()) #se elije el sentido
+                print(f"{self.jugador_inicial.nombre} será el jugador inicial.")
+                sentido = self.jugador_inicial.elegir_sentido()
+                print(f"{self.jugador_inicial.nombre} elige el sentido: {sentido}")
+                self.definir_sentido(sentido)
                 break
-            # en caso de empate, se repite solo entre los empatados
-            self.jugadores = tiradas[max_valor]
+            else:
+                empatados = [j.nombre for j in tiradas[max_valor]]
+                print(f"Empate entre: {empatados}. Se repite la tirada.")
+                self.jugadores = tiradas[max_valor]
+                ronda += 1
+
 
     def partida_terminada(self):
         jugadores_activos = [j for j in self.jugadores if j.cacho.numero_dados() > 0]
         return len(jugadores_activos) == 1
     
     def pedir_modo_obligado(self, jugador):
+        print(f"{jugador.nombre} debe elegir modo obligado.")
         if isinstance(jugador, JugadorBot):
-            return random.choice(["abierto", "cerrado"])
+            modo = random.choice(["abierto", "cerrado"])
+            print(f"{jugador.nombre} (bot) elige modo: {modo}")
+            return modo
         elif isinstance(jugador, JugadorHumano):
             while True:
                 modo = input(f"{jugador.nombre}, estás obligado. Elije entre modo (abierto/cerrado): ").strip().lower()
                 if modo in ["abierto", "cerrado"]:
                     return modo
                 print("Entrada inválida. Escribe 'abierto' o 'cerrado'.")
+
         
         
     def iniciar_partida(self):
