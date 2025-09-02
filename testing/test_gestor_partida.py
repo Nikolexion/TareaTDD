@@ -10,6 +10,8 @@ from src.juego.jugador import JugadorBot
 from src.juego.gestor_partida import GestorPartida
 from src.juego.arbitro_ronda import Apuesta
 from src.juego.validador_apuesta import ValidadorApuesta
+from src.juego.dado import Dado
+from src.juego.contador_pintas import Contador_pintas
 
 def test_inicializar_lista_de_jugadores():
     jugadores = [JugadorBot("hugo"), JugadorBot("julio"), JugadorBot("geoffrey")]
@@ -214,3 +216,80 @@ def test_jugar_ronda_calzar_falla(monkeypatch):
 
     assert jugadores[1].cacho.numero_dados() < 5
     assert gestor.jugador_afectado == jugadores[1]
+
+
+def test_activar_ronda_obligada():
+    jugadores = [JugadorBot("hugo"), JugadorBot("julio"), JugadorBot("geoffrey")]
+    gestor = GestorPartida(jugadores)
+
+    jugadores[0].cacho.dados = [Dado()]
+    jugadores[0].cacho.dado1.valor = 1
+
+    gestor.pedir_modo_obligado = lambda j: "cerrado"
+    gestor.iniciar_ronda()
+
+    assert jugadores[0].ronda_obligada is True
+    assert jugadores[0].obligado_activado is True
+    assert jugadores[0].modo_obligado == "cerrado"
+
+    # demás no están obligados
+    assert not jugadores[1].ronda_obligada
+    assert not jugadores[2].ronda_obligada
+
+
+def test_no_reactivar_ronda_obligada_en_segunda_vez():
+    jugadores = [JugadorBot("hugo"), JugadorBot("julio"), JugadorBot("geoffrey")]
+    gestor = GestorPartida(jugadores)
+
+    jugadores[1].obligado_activado = True
+    jugadores[1].ronda_obligada = False
+    jugadores[1].modo_obligado = "cerrado"
+
+    jugadores[1].cacho.dados = [Dado()]
+    jugadores[1].cacho.dado1.valor = 2  # Tonto
+
+    # demás tienen más de un dado
+    jugadores[0].cacho.dados = [Dado() for _ in range(3)]
+    jugadores[2].cacho.dados = [Dado() for _ in range(5)]
+
+    gestor.pedir_modo_obligado = lambda j: "abierto"  # no debería llamarse
+
+    gestor.iniciar_ronda()
+
+    assert jugadores[1].ronda_obligada is False
+    assert jugadores[1].modo_obligado == "cerrado"  # se mantiene el anterior
+
+
+def test_contador_sin_comodines_en_obligado():
+    jugadores = [JugadorBot("hugo"), JugadorBot("julio")]
+    jugadores[0].cacho.dados = [Dado(), Dado()]
+    jugadores[0].cacho.dados[0].valor = 1  # As
+    jugadores[0].cacho.dados[1].valor = 2 
+
+    contador = Contador_pintas(jugadores[0].cacho)
+    total = contador.contar_pintas("Tonto", obligar=True)
+
+    assert total == 1 # el as no debe contar como comodín
+
+
+def test_activar_ronda_obligada_invalido():
+    jugadores = [JugadorBot("hugo"), JugadorBot("julio"), JugadorBot("geoffrey")]
+    gestor = GestorPartida(jugadores)
+
+    #jlio tiene 2 dados y nunca ha activado ronda obligada
+    jugadores[1].obligado_activado = False
+    jugadores[1].ronda_obligada = False
+    jugadores[1].cacho.dados = [Dado(), Dado()]
+    jugadores[1].cacho.dados[0].valor = 2
+    jugadores[1].cacho.dados[1].valor = 5
+
+    jugadores[0].cacho.dados = [Dado() for _ in range(5)]
+    jugadores[2].cacho.dados = [Dado() for _ in range(4)]
+
+    gestor.pedir_modo_obligado = lambda j: "cerrado"  # no debería llamarse
+
+    gestor.iniciar_ronda()
+
+    assert jugadores[1].ronda_obligada is False
+    assert jugadores[1].obligado_activado is False
+    assert gestor.ronda_obligada is False or gestor.jugador_obligado != jugadores[1]
