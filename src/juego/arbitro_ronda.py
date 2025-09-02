@@ -32,16 +32,21 @@ class ArbitroRonda:
              pinta_en_string = apuesta.pinta
         return pinta_en_string
 
-    def resolver_duda(self, apuesta, cacho, jugador_duda, obligar = False):
+    def resolver_duda(self, apuesta, cacho, jugador_duda, obligar=False):
         pinta_en_string = self.pinta_en_string(apuesta)
-        total = Contador_pintas(cacho).contar_pintas(pinta_en_string, obligar=obligar)
+
+        total = 0
+        for jugador in self.jugadores:
+            contador = Contador_pintas(jugador.cacho)
+            total += contador.contar_pintas(pinta_en_string, obligar=obligar)
 
         if total >= apuesta.cantidad:
             pierde = jugador_duda
         else:
             pierde = apuesta.jugador_que_aposto
-
+            
         return ResultadoDuda(pierde)
+
 
     def puede_calzar(self, apuesta, jugador_calza):
         if not isinstance(apuesta.cantidad, int) or apuesta.cantidad < 1:

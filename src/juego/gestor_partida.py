@@ -144,7 +144,7 @@ class GestorPartida:
             self.jugar_ronda()
         
         ganador = next(j for j in self.jugadores if j.cacho.numero_dados() > 0)
-        print(f"\n {ganador.nombre} ha ganado la partida con {ganador.cacho.numero_dados()} dado(s) restante(s)!")
+        print(f"\n{ganador.nombre} ha ganado la partida con {ganador.cacho.numero_dados()} dado(s) restante(s)!")
 
         
     def jugar_ronda(self, apuesta_inicial_tests=None):

@@ -4,38 +4,40 @@ from src.juego.arbitro_ronda import ArbitroRonda, Apuesta
 from src.juego.cacho import Cacho
 from src.juego.dado import Dado
 
-
+    
 def test_resultado_duda_si_supera_apuesta(mocker):
     mock_generador = mocker.Mock()
-    mock_generador.generar.side_effect = [3, 3, 3, 1, 5]
+    mock_generador.generar.side_effect = [3, 3, 3, 1, 5, 2, 2, 2, 2, 2]
     mocker.patch("src.juego.dado.GeneradorAleatorio", return_value=mock_generador)
 
-    jugador_apuesta = "1"
-    jugador_duda = "2"
+    jugador_apuesta = mocker.Mock()
+    jugador_apuesta.cacho = Cacho()
+    jugador_duda = mocker.Mock()
+    jugador_duda.cacho = Cacho()
 
-    cacho = Cacho()
     apuesta = Apuesta(cantidad=3, pinta=3, jugador_que_aposto=jugador_apuesta)
-    arbitro = ArbitroRonda(0, [object(), object()])
+    arbitro = ArbitroRonda(jugador_apuesta, [jugador_apuesta, jugador_duda])
 
-    resultado = arbitro.resolver_duda(apuesta, cacho, jugador_duda=jugador_duda)
+    resultado = arbitro.resolver_duda(apuesta, jugador_duda.cacho, jugador_duda)
     assert resultado.pierde_dado == jugador_duda
 
 
 def test_resultado_duda_no_cumple_apuesta(mocker):
     mock_generador = mocker.Mock()
-    mock_generador.generar.side_effect = [3, 3, 2, 2, 2]
+    mock_generador.generar.side_effect = [3, 3, 2, 2, 2, 4, 4, 5, 4, 2]
     mocker.patch("src.juego.dado.GeneradorAleatorio", return_value=mock_generador)
 
-    jugador_apuesta = "1"
-    jugador_duda = "2"
-
-    cacho = Cacho()
+    jugador_apuesta = mocker.Mock()
+    jugador_apuesta.cacho = Cacho()
+    jugador_duda = mocker.Mock()
+    jugador_duda.cacho = Cacho()
+    
     apuesta = Apuesta(cantidad=3, pinta=3, jugador_que_aposto=jugador_apuesta)
-    arbitro = ArbitroRonda(0, [object(), object()])
+    arbitro = ArbitroRonda(jugador_apuesta, [jugador_apuesta, jugador_duda])
 
-    resultado = arbitro.resolver_duda(apuesta, cacho, jugador_duda=jugador_duda)
+    resultado = arbitro.resolver_duda(apuesta, jugador_duda.cacho, jugador_duda)
     assert resultado.pierde_dado == jugador_apuesta
-
+    
 
 def test_resolver_calzar_bueno(mocker):
     mock_generador = mocker.Mock()
