@@ -106,3 +106,31 @@ def test_partida_terminada():
 
     gestor = GestorPartida([jugador1, jugador2, jugador3])
     assert gestor.partida_terminada() is True
+    
+
+def test_iniciar_partida_con_bots():
+    jugadores = [JugadorBot("hugo"), JugadorBot("julio"), JugadorBot("geoffrey")]
+    gestor = GestorPartida(jugadores)
+
+    gestor.iniciar_partida()
+
+    assert gestor.jugador_inicial in jugadores
+    assert gestor.sentido in ["horario", "antihorario"]
+    assert len(gestor.orden_turnos) == 3
+    assert gestor.obtener_jugador_actual() == gestor.jugador_inicial
+
+
+def test_iniciar_ronda_sin_jugador_inicial():
+    jugadores = [JugadorBot("hugo"), JugadorBot("julio")]
+    gestor = GestorPartida(jugadores)
+
+    with pytest.raises(ValueError, match="Debe determinarse el jugador inicial antes de iniciar la partida"):
+        gestor.iniciar_ronda()
+        
+        
+def test_iniciar_partida_con_un_solo_jugador_invalido():
+    jugador = JugadorBot("hugo")
+    gestor = GestorPartida([jugador])
+
+    with pytest.raises(ValueError, match="Se requieren al menos 2 jugadores para iniciar la partida"):
+        gestor.iniciar_partida()
