@@ -224,17 +224,20 @@ def test_activar_ronda_obligada():
 
     jugadores[0].cacho.dados = [Dado()]
     jugadores[0].cacho.dado1.valor = 1
+    jugadores[0].cacho.num_dados = 1  #para resgringir num dados a 1
 
     gestor.pedir_modo_obligado = lambda j: "cerrado"
+    gestor.jugador_inicial = jugadores[0]
     gestor.iniciar_ronda()
 
-    assert jugadores[0].ronda_obligada is True
+    assert jugadores[0].reglas_especiales is True
     assert jugadores[0].obligado_activado is True
     assert jugadores[0].modo_obligado == "cerrado"
 
-    # demás no están obligados
-    assert not jugadores[1].ronda_obligada
-    assert not jugadores[2].ronda_obligada
+    assert not jugadores[1].reglas_especiales
+    assert not jugadores[2].reglas_especiales
+
+
 
 
 def test_no_reactivar_ronda_obligada_en_segunda_vez():
@@ -253,6 +256,8 @@ def test_no_reactivar_ronda_obligada_en_segunda_vez():
     jugadores[2].cacho.dados = [Dado() for _ in range(5)]
 
     gestor.pedir_modo_obligado = lambda j: "abierto"  # no debería llamarse
+    
+    gestor.jugador_inicial = jugadores[1] 
 
     gestor.iniciar_ronda()
 
@@ -285,6 +290,8 @@ def test_activar_ronda_obligada_invalido():
 
     jugadores[0].cacho.dados = [Dado() for _ in range(5)]
     jugadores[2].cacho.dados = [Dado() for _ in range(4)]
+    
+    gestor.jugador_inicial = jugadores[1] 
 
     gestor.pedir_modo_obligado = lambda j: "cerrado"  # no debería llamarse
 

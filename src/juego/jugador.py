@@ -12,6 +12,8 @@ class Jugador(ABC):
         self.cacho = Cacho()
         self.nombre = nombre
         self.reglas_especiales = False
+        self.obligado_activado = False  # flag para saber si ya usó el beneficio por una vez
+        self.modo_obligado = None  
     
     @abstractmethod
     def elegir_sentido(self):

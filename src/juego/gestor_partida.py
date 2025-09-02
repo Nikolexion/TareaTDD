@@ -1,6 +1,6 @@
 import random
 
-from src.juego.jugador import Jugador
+from src.juego.jugador import Jugador, JugadorBot, JugadorHumano
 from src.juego.dado import Dado
 from src.juego.arbitro_ronda import ArbitroRonda
 from src.juego.validador_apuesta import ValidadorApuesta
@@ -69,9 +69,15 @@ class GestorPartida:
         self.turno_index = (self.turno_index + 1) % len(self.orden_turnos)
 
     def verificar_reglas_especiales(self, jugador):
-        num_dados = jugador.cacho.numero_dados()
-        if num_dados == 1:
+        num_dados = jugador.cacho.num_dados
+
+        # solo activar si tiene 1 dado y nunca ha usado el beneficio
+        if num_dados == 1 and not jugador.obligado_activado:
             jugador.reglas_especiales = True
+            jugador.obligado_activado = True
+            jugador.modo_obligado = self.pedir_modo_obligado(jugador)
+        else:
+            jugador.reglas_especiales = False
 
     #para determinar el jugador que empieza la partida y el sentido de juego
     def determinar_jugador_inicial(self):
@@ -95,6 +101,16 @@ class GestorPartida:
         jugadores_activos = [j for j in self.jugadores if j.cacho.numero_dados() > 0]
         return len(jugadores_activos) == 1
     
+    def pedir_modo_obligado(self, jugador):
+        if isinstance(jugador, JugadorBot):
+            return random.choice(["abierto", "cerrado"])
+        elif isinstance(jugador, JugadorHumano):
+            while True:
+                modo = input(f"{jugador.nombre}, estás obligado. Elije entre modo (abierto/cerrado): ").strip().lower()
+                if modo in ["abierto", "cerrado"]:
+                    return modo
+                print("Entrada inválida. Escribe 'abierto' o 'cerrado'.")
+        
         
     def iniciar_partida(self):
         if len(self.jugadores) < 2:
