@@ -48,7 +48,6 @@ class JugadorBot(Jugador):
 
             apuesta = Apuesta(cantidad, pinta, self)
 
-            # Validar contra la apuesta actual
             if ValidadorApuesta.es_valida(apuesta, apuesta_actual, self):
                 opciones_validas.append(apuesta)
 
@@ -57,15 +56,16 @@ class JugadorBot(Jugador):
             if opciones_validas:
                 mejor_apuesta = max(opciones_validas, key=lambda a: (a.cantidad, ORDEN_PINTAS.index(a.pinta)))
                 return {"tipo": "apostar", "apuesta": mejor_apuesta}
+            elif self.reglas_especiales:
+                raise ValueError(f"{self.nombre} está obligado pero no tiene apuestas válidas")
             else:
-                # Fallback seguro: apuesta mínima válida
-                return {"tipo": "apostar", "apuesta": Apuesta(1, "Tonto", self)}
+                return {"tipo": "dudar"}
+
 
         # Si hay apuesta previa pero no hay forma de superarla, dudar
         if not opciones_validas:
             return {"tipo": "dudar"}
 
-        # Política greedy: mayor cantidad, luego pinta más alta
         mejor_apuesta = max(opciones_validas, key=lambda a: (a.cantidad, ORDEN_PINTAS.index(a.pinta)))
         return {"tipo": "apostar", "apuesta": mejor_apuesta}
 
@@ -84,10 +84,17 @@ class JugadorHumano(Jugador):
         accion = input("Elije una jugada a realizar (apostar / dudar / calzar): ").strip().lower()
 
         if accion == "apostar":
-            cantidad = int(input("Cantidad: "))
-            pinta = input("Pinta (As, Tonto, Tren, Cuadra, Quina, Sexto): ").strip().capitalize()
-            apuesta = Apuesta(cantidad=cantidad, pinta=pinta, jugador_que_aposto=self)
-            return {"tipo": "apostar", "apuesta": apuesta}
+            try:
+                cantidad = int(input("Cantidad: "))
+                pinta = input("Pinta: ").strip().capitalize()
+                nueva_apuesta = Apuesta(cantidad, pinta, self)
+
+                if ValidadorApuesta.es_valida(nueva_apuesta, apuesta_actual, self):
+                    return {"tipo": "apostar", "apuesta": nueva_apuesta}
+                else:
+                    print("Apuesta inválida. Debe superar la anterior en cantidad o en pinta.")
+            except Exception:
+                    print("Entrada inválida. Intenta nuevamente.")
 
         elif accion == "dudar":
             return {"tipo": "dudar"}

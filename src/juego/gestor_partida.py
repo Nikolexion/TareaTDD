@@ -56,14 +56,19 @@ class GestorPartida:
         self.jugador_afectado = None
         self.apuesta_actual = None
 
-
-
     def obtener_orden_turnos(self):
-        idx = self.jugadores.index(self.jugador_inicial)
+        activos = [j for j in self.jugadores if j.cacho.numero_dados() > 0]
+
+        if self.jugador_inicial not in activos:
+            self.jugador_inicial = activos[0]
+
+        idx = activos.index(self.jugador_inicial)
+
         if self.sentido == "horario":
-            return self.jugadores[idx:] + self.jugadores[:idx]
+            return activos[idx:] + activos[:idx]
         else:
-            return list(reversed(self.jugadores[:idx+1])) + list(reversed(self.jugadores[idx+1:]))
+            return list(reversed(activos[:idx+1])) + list(reversed(activos[idx+1:]))
+
 
     def obtener_jugador_actual(self):
         return self.orden_turnos[self.turno_index]
@@ -128,7 +133,6 @@ class GestorPartida:
                 print("Entrada inválida. Escribe 'abierto' o 'cerrado'.")
 
         
-        
     def iniciar_partida(self):
         if len(self.jugadores) < 2:
             raise ValueError("Se requieren al menos 2 jugadores para iniciar la partida")
@@ -137,7 +141,11 @@ class GestorPartida:
 
         while not self.partida_terminada():
             self.iniciar_ronda()
-            self.jugar_ronda()    
+            self.jugar_ronda()
+        
+        ganador = next(j for j in self.jugadores if j.cacho.numero_dados() > 0)
+        print(f"\n {ganador.nombre} ha ganado la partida con {ganador.cacho.numero_dados()} dado(s) restante(s)!")
+
         
     def jugar_ronda(self, apuesta_inicial_tests=None):
         self.apuesta_actual = apuesta_inicial_tests
@@ -146,6 +154,10 @@ class GestorPartida:
         print(f"\n--- Jugando ronda ---")
         while True:
             jugador = self.obtener_jugador_actual()
+            if jugador.cacho.numero_dados() == 0:
+                print(f"{jugador.nombre} no tiene dados. Se salta su turno.")
+                self.avanzar_turno()
+                continue
             print(f"\nTurno de {jugador.nombre} ({jugador.cacho.numero_dados()} dados)")
 
             accion = jugador.elegir_accion(self.apuesta_actual)

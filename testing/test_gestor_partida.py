@@ -306,3 +306,19 @@ def test_activar_ronda_obligada_invalido():
     assert jugadores[1].ronda_obligada is False
     assert jugadores[1].obligado_activado is False
     assert gestor.ronda_obligada is False or gestor.jugador_obligado != jugadores[1]
+
+
+def test_contador_pintas_sin_comodines_modo_obligado():
+    jugador = JugadorBot("geoffrey")
+    jugador.cacho.dados = [Dado(), Dado()]
+    jugador.cacho.dados[0].valor = 1#As
+    jugador.cacho.dados[1].valor = 2  #Tonto
+    jugador.cacho.num_dados = 2
+
+    contador = Contador_pintas(jugador.cacho)
+    total_obligado = contador.contar_pintas("Tonto", obligar=True)
+    total_normal = contador.contar_pintas("Tonto", obligar=False)
+
+    assert total_obligado == 1  # solo el Tonto cuenta
+    assert total_normal == 2    # As cuenta como comodín
+
