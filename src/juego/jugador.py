@@ -5,3 +5,6 @@ class Jugador():
         self.cacho = Cacho()
         self.nombre = nombre
         self.reglas_especiales = False
+        
+    def elegir_sentido(self):
+        return "horario"
