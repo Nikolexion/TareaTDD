@@ -8,6 +8,7 @@ import pytest
 import pytest
 from src.juego.jugador import JugadorBot
 from src.juego.gestor_partida import GestorPartida
+from src.juego.arbitro_ronda import Apuesta
 
 def test_inicializar_lista_de_jugadores():
     jugadores = [JugadorBot("hugo"), JugadorBot("julio"), JugadorBot("geoffrey")]
@@ -134,3 +135,80 @@ def test_iniciar_partida_con_un_solo_jugador_invalido():
 
     with pytest.raises(ValueError, match="Se requieren al menos 2 jugadores para iniciar la partida"):
         gestor.iniciar_partida()
+        
+
+def test_partida():
+    jugadores = [JugadorBot("Hugo"), JugadorBot("Julio"), JugadorBot("Geoffrey")]
+    gestor = GestorPartida(jugadores)
+    gestor.iniciar_partida()
+
+    activos = [j for j in gestor.jugadores if j.cacho.numero_dados() > 0]
+    assert len(activos) == 1
+
+
+def test_jugar_ronda_apuesta_inicial():
+    jugadores = [JugadorBot("Hugo"), JugadorBot("Julio")]
+    gestor = GestorPartida(jugadores)
+    gestor.jugador_inicial = jugadores[0]
+    gestor.definir_sentido("horario")
+    gestor.iniciar_ronda()
+
+    gestor.jugar_ronda() #se debe fijar una apuesta
+
+    assert gestor.apuesta_actual is not None
+    assert isinstance(gestor.apuesta_actual, Apuesta)
+    assert gestor.apuesta_actual.jugador_que_aposto in jugadores
+
+
+def test_jugar_ronda_duda_y_pierde():
+    jugadores = [JugadorBot("hugo"), JugadorBot("julio")]
+    gestor = GestorPartida(jugadores)
+    gestor.jugador_inicial = jugadores[0]
+    gestor.definir_sentido("horario")
+    gestor.iniciar_ronda()
+
+    #forzar apuesta alta para que el bot que duda pierda
+    gestor.apuesta_actual = Apuesta(cantidad=5, pinta="As", jugador_que_aposto=jugadores[0])
+    gestor.turno_index = 1  # Julio duda
+
+    gestor.jugar_ronda()
+
+    assert jugadores[1].cacho.numero_dados() < 5 or jugadores[0].cacho.numero_dados() < 5
+    assert gestor.jugador_afectado in jugadores
+
+def test_jugar_ronda_calzar_valido(monkeypatch):
+    jugadores = [JugadorBot("hugo"), JugadorBot("julio")]
+    gestor = GestorPartida(jugadores)
+    gestor.jugador_inicial = jugadores[0]
+    gestor.definir_sentido("horario")
+    gestor.iniciar_ronda()
+
+    pinta = jugadores[1].cacho.dados[0].pinta()
+    gestor.apuesta_actual = Apuesta(cantidad=1, pinta=pinta, jugador_que_aposto=jugadores[0])
+    gestor.turno_index = 1  # Julio calza
+
+    monkeypatch.setattr(JugadorBot, "elegir_accion", lambda self, apuesta: {"tipo": "calzar"})
+
+    gestor.jugar_ronda()
+
+    assert gestor.jugador_afectado == jugadores[1]
+    
+
+def test_jugar_ronda_calzar_falla(monkeypatch):
+    jugadores = [JugadorBot("hugo"), JugadorBot("julio")]
+    gestor = GestorPartida(jugadores)
+    gestor.jugador_inicial = jugadores[0]
+    gestor.definir_sentido("horario")
+    gestor.iniciar_ronda()
+
+    #forzar apuesta que no se puede calzar
+    gestor.apuesta_actual = Apuesta(cantidad=5, pinta="Tres", jugador_que_aposto=jugadores[0])
+    gestor.turno_index = 1  # Julio calza
+
+    monkeypatch.setattr(JugadorBot, "elegir_accion", lambda self, apuesta: {"tipo": "calzar"})
+
+    gestor.jugar_ronda()
+
+    assert jugadores[1].cacho.numero_dados() < 5
+    assert gestor.jugador_afectado == jugadores[1]
+
