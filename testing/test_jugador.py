@@ -28,7 +28,7 @@ def test_elegir_accion_bot():
 
 
 def test_elegir_accion_humano(monkeypatch):
-    inputs = iter(["apostar", "2", "Tren"]) #se simula un input de apostar 2
+    inputs = iter(["apostar", "2", "Tren"]) #se simula un input de apostar 2 trenes
     monkeypatch.setattr("builtins.input", lambda _: next(inputs))
 
     jugador = JugadorHumano("Antonia")
