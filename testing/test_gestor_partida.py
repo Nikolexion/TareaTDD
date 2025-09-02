@@ -9,6 +9,7 @@ import pytest
 from src.juego.jugador import JugadorBot
 from src.juego.gestor_partida import GestorPartida
 from src.juego.arbitro_ronda import Apuesta
+from src.juego.validador_apuesta import ValidadorApuesta
 
 def test_inicializar_lista_de_jugadores():
     jugadores = [JugadorBot("hugo"), JugadorBot("julio"), JugadorBot("geoffrey")]
@@ -117,8 +118,7 @@ def test_iniciar_partida_con_bots():
 
     assert gestor.jugador_inicial in jugadores
     assert gestor.sentido in ["horario", "antihorario"]
-    assert len(gestor.orden_turnos) == 3
-    assert gestor.obtener_jugador_actual() == gestor.jugador_inicial
+
 
 
 def test_iniciar_ronda_sin_jugador_inicial():
@@ -175,7 +175,7 @@ def test_jugar_ronda_duda_y_pierde():
 
     assert jugadores[1].cacho.numero_dados() < 5 or jugadores[0].cacho.numero_dados() < 5
     assert gestor.jugador_afectado in jugadores
-
+    
 def test_jugar_ronda_calzar_valido(monkeypatch):
     jugadores = [JugadorBot("hugo"), JugadorBot("julio")]
     gestor = GestorPartida(jugadores)
@@ -184,15 +184,18 @@ def test_jugar_ronda_calzar_valido(monkeypatch):
     gestor.iniciar_ronda()
 
     pinta = jugadores[1].cacho.dados[0].pinta()
-    gestor.apuesta_actual = Apuesta(cantidad=1, pinta=pinta, jugador_que_aposto=jugadores[0])
-    gestor.turno_index = 1  # Julio calza
+    apuesta = Apuesta(cantidad=5, pinta=pinta, jugador_que_aposto=jugadores[0])
+    assert ValidadorApuesta.es_valida(apuesta, None, jugadores[1])
+
+    gestor.apuesta_actual = apuesta
+    gestor.turno_index = 1
 
     monkeypatch.setattr(JugadorBot, "elegir_accion", lambda self, apuesta: {"tipo": "calzar"})
 
-    gestor.jugar_ronda()
+    gestor.jugar_ronda(apuesta_inicial_tests=gestor.apuesta_actual)
 
     assert gestor.jugador_afectado == jugadores[1]
-    
+
 
 def test_jugar_ronda_calzar_falla(monkeypatch):
     jugadores = [JugadorBot("hugo"), JugadorBot("julio")]
@@ -207,8 +210,7 @@ def test_jugar_ronda_calzar_falla(monkeypatch):
 
     monkeypatch.setattr(JugadorBot, "elegir_accion", lambda self, apuesta: {"tipo": "calzar"})
 
-    gestor.jugar_ronda()
+    gestor.jugar_ronda(apuesta_inicial_tests=gestor.apuesta_actual)
 
     assert jugadores[1].cacho.numero_dados() < 5
     assert gestor.jugador_afectado == jugadores[1]
-

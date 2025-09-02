@@ -8,7 +8,7 @@ class ValidadorApuesta:
     def es_valida(nueva_apuesta, apuesta_anterior, jugador):
         pinta_actual = nueva_apuesta.pinta
         cantidad_actual = nueva_apuesta.cantidad
-        num_dados = jugador.cacho.numero_dados()
+        num_dados = jugador.cacho.num_dados
 
         #si es que es la primera apuesta
         if apuesta_anterior is None:

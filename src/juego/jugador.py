@@ -1,7 +1,11 @@
 import random
 from src.juego.cacho import Cacho
 from src.juego.arbitro_ronda import Apuesta
+from src.juego.dado import Dado
+from src.juego.contador_pintas import Contador_pintas
+from src.juego.validador_apuesta import ValidadorApuesta
 from abc import ABC, abstractmethod
+
 
 class Jugador(ABC):
     def __init__(self, nombre):
@@ -23,15 +27,47 @@ class Jugador(ABC):
 class JugadorBot(Jugador):
     def elegir_sentido(self):
         return random.choice(["horario", "antihorario"])
+
     
+    ##metodo que sigue una política greedy
     def elegir_accion(self, apuesta_actual: Apuesta):
-        #como la apuesta inicial
-        pinta = self.cacho.dados[0].pinta()
-        cantidad = 1
-        apuesta = Apuesta(cantidad=cantidad, pinta=pinta, jugador_que_aposto=self)
-        return {"tipo": "apostar", "apuesta": apuesta}
-    
-    
+        opciones_validas = []
+
+        # Orden jerárquico de pintas
+        ORDEN_PINTAS = [Dado.PINTA[i] for i in sorted(Dado.PINTA.keys())]
+
+        for pinta in ORDEN_PINTAS:
+            contador = Contador_pintas(self.cacho)
+            cantidad = contador.contar_pintas(pinta, obligar=False)
+
+            # Ignorar apuestas con cantidad 0
+            if cantidad == 0:
+                continue
+
+            apuesta = Apuesta(cantidad, pinta, self)
+
+            # Validar contra la apuesta actual
+            if ValidadorApuesta.es_valida(apuesta, apuesta_actual, self):
+                opciones_validas.append(apuesta)
+
+        # Si no hay apuesta previa, el bot está obligado a iniciar con una apuesta
+        if apuesta_actual is None:
+            if opciones_validas:
+                mejor_apuesta = max(opciones_validas, key=lambda a: (a.cantidad, ORDEN_PINTAS.index(a.pinta)))
+                return {"tipo": "apostar", "apuesta": mejor_apuesta}
+            else:
+                # Fallback seguro: apuesta mínima válida
+                return {"tipo": "apostar", "apuesta": Apuesta(1, "Tonto", self)}
+
+        # Si hay apuesta previa pero no hay forma de superarla, dudar
+        if not opciones_validas:
+            return {"tipo": "dudar"}
+
+        # Política greedy: mayor cantidad, luego pinta más alta
+        mejor_apuesta = max(opciones_validas, key=lambda a: (a.cantidad, ORDEN_PINTAS.index(a.pinta)))
+        return {"tipo": "apostar", "apuesta": mejor_apuesta}
+
+
 
 ##Jugador que puede tomar acciones interactuando por consola
 class JugadorHumano(Jugador):
