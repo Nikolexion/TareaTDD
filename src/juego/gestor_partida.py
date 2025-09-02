@@ -70,3 +70,10 @@ class GestorPartida:
     def partida_terminada(self):
         jugadores_activos = [j for j in self.jugadores if j.cacho.numero_dados() > 0]
         return len(jugadores_activos) == 1
+    
+    def iniciar_partida(self):
+        if len(self.jugadores) < 2:
+            raise ValueError("Se requieren al menos 2 jugadores para iniciar la partida")
+
+        self.determinar_jugador_inicial()
+        self.iniciar_ronda()
