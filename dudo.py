@@ -1,7 +1,10 @@
 from src.juego.gestor_partida import GestorPartida
-from src.juego.jugador import JugadorBot
+from src.juego.jugador import JugadorBot, JugadorHumano
 
-jugadores = [JugadorBot("hugo"), JugadorBot("julio"), JugadorBot("geoffrey")]
+#opcional
+jugadorHumano = JugadorHumano("apollo")
+
+jugadores = [JugadorBot("hugo"), JugadorBot("julio"), JugadorBot("geoffrey"), jugadorHumano]
 gestor = GestorPartida(jugadores)
 
 gestor.iniciar_partida()

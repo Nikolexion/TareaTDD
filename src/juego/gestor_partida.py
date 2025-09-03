@@ -25,22 +25,34 @@ class GestorPartida:
         self.sentido = sentido
 
     def iniciar_ronda(self):
-        #si hay jugador afectado, se define como el que inicia la ronda
-        if self.jugador_afectado:
-            self.jugador_inicial = self.jugador_afectado
-        elif self.jugador_inicial is None:
-            raise ValueError("Debe determinarse el jugador inicial antes de iniciar la partida")
-
-        self.orden_turnos = self.obtener_orden_turnos()
-        self.turno_index = 0
-        self.jugador_afectado = None
-
-    def iniciar_ronda(self):
-        print(f"\n--- Iniciando nueva ronda ---")
+        hay_humano = any(isinstance(j, JugadorHumano) for j in self.jugadores)
+        print("\n--- Iniciando nueva ronda ---")
         for jugador in self.jugadores:
             jugador.cacho.agitar()
-            print(f"{jugador.nombre} tiene {jugador.cacho.numero_dados()} dados: {[d.pinta() for d in jugador.cacho.dados]}")
             self.verificar_reglas_especiales(jugador)
+
+        print("\nEstado inicial de la ronda:")
+        for jugador in self.jugadores:
+            if hay_humano:
+                if isinstance(jugador, JugadorHumano):
+                    if jugador.reglas_especiales and jugador.modo_obligado == "cerrado":
+                        print(f"{jugador.nombre} tiene {jugador.cacho.numero_dados()} dados: {[d.pinta() for d in jugador.cacho.dados]}")
+                    elif jugador.reglas_especiales and jugador.modo_obligado == "abierto":
+                        print(f"{jugador.nombre} tiene {jugador.cacho.numero_dados()} dados.")
+                    else:
+                        print(f"{jugador.nombre} tiene {jugador.cacho.numero_dados()} dados.")
+                else:
+                    humano_obligado = next((j for j in self.jugadores if isinstance(j, JugadorHumano) and j.reglas_especiales), None)
+                    if humano_obligado:
+                        if humano_obligado.modo_obligado == "cerrado":
+                            print(f"{jugador.nombre} tiene {jugador.cacho.numero_dados()} dados.")
+                        elif humano_obligado.modo_obligado == "abierto":
+                            print(f"{jugador.nombre} tiene {jugador.cacho.numero_dados()} dados: {[d.pinta() for d in jugador.cacho.dados]}")
+                    else:
+                        print(f"{jugador.nombre} tiene {jugador.cacho.numero_dados()} dados: {[d.pinta() for d in jugador.cacho.dados]}")
+            else:
+                # solo bots: mostrar todo
+                print(f"{jugador.nombre} tiene {jugador.cacho.numero_dados()} dados: {[d.pinta() for d in jugador.cacho.dados]}")
 
         if self.jugador_afectado:
             self.jugador_inicial = self.jugador_afectado
@@ -55,6 +67,7 @@ class GestorPartida:
         self.turno_index = 0
         self.jugador_afectado = None
         self.apuesta_actual = None
+        
 
     def obtener_orden_turnos(self):
         activos = [j for j in self.jugadores if j.cacho.numero_dados() > 0]
@@ -173,7 +186,7 @@ class GestorPartida:
                 self.apuesta_actual = nueva_apuesta
                 self.avanzar_turno()
 
-            elif tipo == "dudar":
+            elif tipo == "dudar" and self.apuesta_actual != None:
                 print(f"{jugador.nombre} duda de la apuesta: {self.apuesta_actual.cantidad} {self.apuesta_actual.pinta}")
                 resultado = self.arbitro.resolver_duda(
                     apuesta=self.apuesta_actual,
@@ -186,7 +199,7 @@ class GestorPartida:
                 self.establecer_jugador_afectado(resultado.pierde_dado)
                 break
 
-            elif tipo == "calzar":
+            elif tipo == "calzar" and self.apuesta_actual != None:
                 print(f"{jugador.nombre} intenta calzar la apuesta: {self.apuesta_actual.cantidad} {self.apuesta_actual.pinta}")
                 resultado = self.arbitro.resolver_calzar(
                     apuesta=self.apuesta_actual,
@@ -206,4 +219,4 @@ class GestorPartida:
                 break
 
             else:
-                raise ValueError(f"Jugada desconocida: {tipo}")
+                print("Acción inválida. Intente nuevamente")

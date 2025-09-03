@@ -81,27 +81,27 @@ class JugadorHumano(Jugador):
             print("Entrada inválida. Escribe 'horario' o 'antihorario'.")
             
     def elegir_accion(self, apuesta_actual: Apuesta):
-        accion = input("Elije una jugada a realizar (apostar / dudar / calzar): ").strip().lower()
+        while True:
+            accion = input("Elije una jugada a realizar (apostar / dudar / calzar): ").strip().lower()
 
-        if accion == "apostar":
-            try:
-                cantidad = int(input("Cantidad: "))
-                pinta = input("Pinta: ").strip().capitalize()
-                nueva_apuesta = Apuesta(cantidad, pinta, self)
+            if accion == "apostar":
+                try:
+                    cantidad = int(input("Cantidad: "))
+                    pinta = input("Pinta (as, tonto, tren, cuadra, quina, sexto): ").strip().capitalize()
+                    nueva_apuesta = Apuesta(cantidad, pinta, self)
 
-                if ValidadorApuesta.es_valida(nueva_apuesta, apuesta_actual, self):
-                    return {"tipo": "apostar", "apuesta": nueva_apuesta}
-                else:
-                    print("Apuesta inválida. Debe superar la anterior en cantidad o en pinta.")
-            except Exception:
+                    if ValidadorApuesta.es_valida(nueva_apuesta, apuesta_actual, self):
+                        return {"tipo": "apostar", "apuesta": nueva_apuesta}
+                    else:
+                        print("Apuesta inválida. Debe superar la anterior en cantidad o en pinta.")
+                except Exception:
                     print("Entrada inválida. Intenta nuevamente.")
 
-        elif accion == "dudar":
-            return {"tipo": "dudar"}
+            elif accion == "dudar":
+                return {"tipo": "dudar"}
 
-        elif accion == "calzar":
-            return {"tipo": "calzar"}
+            elif accion == "calzar":
+                return {"tipo": "calzar"}
 
-        else:
-            raise ValueError("Jugada inválida. Las jugadas son 'apostar', 'dudar' y 'calzar'")
-
+            else:
+                print("Jugada inválida. Escribe 'apostar', 'dudar' o 'calzar'.")
