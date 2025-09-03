@@ -4,6 +4,7 @@ from src.juego.arbitro_ronda import Apuesta
 from src.juego.dado import Dado
 from src.juego.contador_pintas import Contador_pintas
 from src.juego.validador_apuesta import ValidadorApuesta
+from src.juego.arbitro_ronda import ArbitroRonda
 from abc import ABC, abstractmethod
 
 
@@ -35,23 +36,18 @@ class JugadorBot(Jugador):
     def elegir_accion(self, apuesta_actual: Apuesta):
         opciones_validas = []
 
-        # Orden jerárquico de pintas
         ORDEN_PINTAS = [Dado.PINTA[i] for i in sorted(Dado.PINTA.keys())]
+        contador = Contador_pintas(self.cacho)
 
         for pinta in ORDEN_PINTAS:
-            contador = Contador_pintas(self.cacho)
             cantidad = contador.contar_pintas(pinta, obligar=False)
-
-            # Ignorar apuestas con cantidad 0
             if cantidad == 0:
                 continue
 
-            apuesta = Apuesta(cantidad, pinta, self)
+            nueva_apuesta = Apuesta(cantidad, pinta, self)
+            if ValidadorApuesta.es_valida(nueva_apuesta, apuesta_actual, self):
+                opciones_validas.append(nueva_apuesta)
 
-            if ValidadorApuesta.es_valida(apuesta, apuesta_actual, self):
-                opciones_validas.append(apuesta)
-
-        # Si no hay apuesta previa, el bot está obligado a iniciar con una apuesta
         if apuesta_actual is None:
             if opciones_validas:
                 mejor_apuesta = max(opciones_validas, key=lambda a: (a.cantidad, ORDEN_PINTAS.index(a.pinta)))
@@ -61,11 +57,16 @@ class JugadorBot(Jugador):
             else:
                 return {"tipo": "dudar"}
 
-
-        # Si hay apuesta previa pero no hay forma de superarla, dudar
         if not opciones_validas:
+            arbitro = ArbitroRonda(self, [])  # jugadores vacíos porque solo usamos puede_calzar
+            try:
+                if arbitro.puede_calzar(apuesta_actual, self):
+                    return {"tipo": "calzar"}
+            except Exception:
+                pass
             return {"tipo": "dudar"}
 
+        # Tiene opciones válidas para apostar
         mejor_apuesta = max(opciones_validas, key=lambda a: (a.cantidad, ORDEN_PINTAS.index(a.pinta)))
         return {"tipo": "apostar", "apuesta": mejor_apuesta}
 

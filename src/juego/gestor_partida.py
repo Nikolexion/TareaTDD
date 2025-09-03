@@ -191,6 +191,9 @@ class GestorPartida:
                     jugador_duda=jugador,
                     obligar=self.ronda_obligada
                 )
+                print("\n--- Dados revelados tras la duda ---")
+                for j in self.jugadores:
+                    print(f"{j.nombre}: {[d.pinta() for d in j.cacho.dados]}")
                 print(f"{resultado.pierde_dado.nombre} pierde un dado por dudar.")
                 resultado.pierde_dado.cacho.quitar_dado()
                 self.establecer_jugador_afectado(resultado.pierde_dado)
@@ -198,12 +201,19 @@ class GestorPartida:
 
             elif tipo == "calzar" and self.apuesta_actual != None:
                 print(f"{jugador.nombre} intenta calzar la apuesta: {self.apuesta_actual.cantidad} {self.apuesta_actual.pinta}")
+                if not self.arbitro.puede_calzar(self.apuesta_actual, jugador):
+                    print(f"\n{jugador.nombre} no puede calzar esta apuesta. Debe tener solo 1 dado o que la apuesta sea al menos la mitad de los dados en juego.")
+                    continue  # vuelve a pedir acción
                 resultado = self.arbitro.resolver_calzar(
                     apuesta=self.apuesta_actual,
                     cacho=jugador.cacho,
                     jugador_calza=jugador,
                     obligar=self.ronda_obligada
                 )
+                
+                print("\n--- Dados revelados tras intentar calzar ---")
+                for j in self.jugadores:
+                    print(f"{j.nombre}: {[d.pinta() for d in j.cacho.dados]}")
 
                 if resultado.acierta:
                     print(f"{jugador.nombre} calzó justo. Recupera un dado.")
