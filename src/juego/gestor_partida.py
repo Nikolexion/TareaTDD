@@ -32,26 +32,23 @@ class GestorPartida:
             self.verificar_reglas_especiales(jugador)
 
         print("\nEstado inicial de la ronda:")
+        humano_obligado = next((j for j in self.jugadores if isinstance(j, JugadorHumano) and j.reglas_especiales), None)
+        hay_humano = any(isinstance(j, JugadorHumano) for j in self.jugadores)
+
         for jugador in self.jugadores:
             if hay_humano:
                 if isinstance(jugador, JugadorHumano):
-                    if jugador.reglas_especiales and jugador.modo_obligado == "cerrado":
-                        print(f"{jugador.nombre} tiene {jugador.cacho.numero_dados()} dados: {[d.pinta() for d in jugador.cacho.dados]}")
-                    elif jugador.reglas_especiales and jugador.modo_obligado == "abierto":
+                    if jugador.reglas_especiales and jugador.modo_obligado == "abierto":
                         print(f"{jugador.nombre} tiene {jugador.cacho.numero_dados()} dados.")
                     else:
-                        print(f"{jugador.nombre} tiene {jugador.cacho.numero_dados()} dados.")
+                        print(f"{jugador.nombre} tiene {jugador.cacho.numero_dados()} dados: {[d.pinta() for d in jugador.cacho.dados]}")
                 else:
-                    humano_obligado = next((j for j in self.jugadores if isinstance(j, JugadorHumano) and j.reglas_especiales), None)
-                    if humano_obligado:
-                        if humano_obligado.modo_obligado == "cerrado":
-                            print(f"{jugador.nombre} tiene {jugador.cacho.numero_dados()} dados.")
-                        elif humano_obligado.modo_obligado == "abierto":
-                            print(f"{jugador.nombre} tiene {jugador.cacho.numero_dados()} dados: {[d.pinta() for d in jugador.cacho.dados]}")
-                    else:
+                    if humano_obligado and humano_obligado.modo_obligado == "abierto":
                         print(f"{jugador.nombre} tiene {jugador.cacho.numero_dados()} dados: {[d.pinta() for d in jugador.cacho.dados]}")
+                    else:
+                        print(f"{jugador.nombre} tiene {jugador.cacho.numero_dados()} dados.")
             else:
-                # solo bots: mostrar todo
+                # No hay humanos: mostrar todo
                 print(f"{jugador.nombre} tiene {jugador.cacho.numero_dados()} dados: {[d.pinta() for d in jugador.cacho.dados]}")
 
         if self.jugador_afectado:
